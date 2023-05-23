@@ -23,7 +23,7 @@ if __name__ == "__main__":
                                            load=False, store=True)
 
     # specify ray actors, if equal to 0, no parallelization
-    actors_parallelized = 0
+    actors_parallelized = 2
 
     results_path = os.path.join(os.getcwd(), "results", "lle_results")
     if not os.path.isdir(results_path):
@@ -48,14 +48,13 @@ if __name__ == "__main__":
                             ge_model_name=ge_model_name, tau_given=tau_given,
                             experimental_data_given=experimental_data_given)
 
-    for j in [7]:
-        for i in range(1, len(names_list)):
-            property_data.InitClass(names_list=names_list[i], store_lle=store_lle,
-                                    point_discretization_rec_steps=j,
-                                    name_for_data=general_name, temperature_kelvin=temperature_kelvin[i],
-                                    deciding_index=deciding_index, actors_parallelized=actors_parallelized,
-                                    ge_model_name=ge_model_name, tau_given=tau_given,
-                                    experimental_data_given=experimental_data_given)
+    for i in range(1, len(names_list)):
+        property_data.InitClass(names_list=names_list[i], store_lle=store_lle,
+                                point_discretization_rec_steps=7,
+                                name_for_data=general_name, temperature_kelvin=temperature_kelvin[i],
+                                deciding_index=deciding_index, actors_parallelized=actors_parallelized,
+                                ge_model_name=ge_model_name, tau_given=tau_given,
+                                experimental_data_given=experimental_data_given)
 
     # ryll2009_2
     names_list = ["water", "nitromethane", "nonanol"]
@@ -67,13 +66,12 @@ if __name__ == "__main__":
     tau_given = None
     experimental_data_given = False
 
-    for j in [7]:
-        property_data.InitClass(names_list=names_list, store_lle=store_lle,
-                                point_discretization_rec_steps=j,
-                                name_for_data=general_name, temperature_kelvin=temperature_kelvin,
-                                deciding_index=deciding_index, actors_parallelized=actors_parallelized,
-                                ge_model_name=ge_model_name, tau_given=tau_given,
-                                experimental_data_given=experimental_data_given)
+    property_data.InitClass(names_list=names_list, store_lle=store_lle,
+                            point_discretization_rec_steps=7,
+                            name_for_data=general_name, temperature_kelvin=temperature_kelvin,
+                            deciding_index=deciding_index, actors_parallelized=actors_parallelized,
+                            ge_model_name=ge_model_name, tau_given=tau_given,
+                            experimental_data_given=experimental_data_given)
 
     # chen2000
     names_list = [["n_hexane", "benzene", "sulfolane"], ["n_hexane", "toluene", "sulfolane"],
@@ -88,13 +86,12 @@ if __name__ == "__main__":
     experimental_data_given = True
 
     for j in range(len(names_list)):
-        for i in [7]:
-            property_data.InitClass(names_list=names_list[j], store_lle=store_lle,
-                                    point_discretization_rec_steps=i,
-                                    name_for_data=general_name, temperature_kelvin=temperature_kelvin,
-                                    deciding_index=deciding_index, actors_parallelized=actors_parallelized,
-                                    ge_model_name=ge_model_name, tau_given=tau_given,
-                                    experimental_data_given=experimental_data_given)
+        property_data.InitClass(names_list=names_list[j], store_lle=store_lle,
+                                point_discretization_rec_steps=7,
+                                name_for_data=general_name, temperature_kelvin=temperature_kelvin,
+                                deciding_index=deciding_index, actors_parallelized=actors_parallelized,
+                                ge_model_name=ge_model_name, tau_given=tau_given,
+                                experimental_data_given=experimental_data_given)
 
     # 4 comp systems
     names_list = [["n_hexane", "n_octane", "benzene", "sulfolane"],
@@ -102,13 +99,12 @@ if __name__ == "__main__":
                   ["n_octane", "toluene", "xylene", "sulfolane"]]
 
     for j in range(len(names_list)):
-        for i in [6]:
-            property_data.InitClass(names_list=names_list[j], store_lle=store_lle,
-                                    point_discretization_rec_steps=i,
-                                    name_for_data=general_name, temperature_kelvin=temperature_kelvin,
-                                    deciding_index=deciding_index, actors_parallelized=actors_parallelized,
-                                    ge_model_name=ge_model_name, tau_given=tau_given,
-                                    experimental_data_given=experimental_data_given)
+        property_data.InitClass(names_list=names_list[j], store_lle=store_lle,
+                                point_discretization_rec_steps=6,
+                                name_for_data=general_name, temperature_kelvin=temperature_kelvin,
+                                deciding_index=deciding_index, actors_parallelized=actors_parallelized,
+                                ge_model_name=ge_model_name, tau_given=tau_given,
+                                experimental_data_given=experimental_data_given)
 
     # 5 comp system
     names_list = ["n_hexane", "n_octane", "benzene", "toluene", "sulfolane"]
@@ -134,26 +130,24 @@ if __name__ == "__main__":
                   ["heptane", "benzene", "toluene", "sulfolane"]]
 
     for j in range(len(names_list)):
-        for i in [6]:
-            property_data.InitClass(names_list=names_list[j], store_lle=store_lle,
-                                    point_discretization_rec_steps=i,
-                                    name_for_data=general_name, temperature_kelvin=temperature_kelvin,
-                                    deciding_index=deciding_index, actors_parallelized=actors_parallelized,
-                                    ge_model_name=ge_model_name, tau_given=tau_given,
-                                    experimental_data_given=experimental_data_given)
+        property_data.InitClass(names_list=names_list[j], store_lle=store_lle,
+                                point_discretization_rec_steps=6,
+                                name_for_data=general_name, temperature_kelvin=temperature_kelvin,
+                                deciding_index=deciding_index, actors_parallelized=actors_parallelized,
+                                ge_model_name=ge_model_name, tau_given=tau_given,
+                                experimental_data_given=experimental_data_given)
 
     # 5 comp systems
     names_list = [["hexane", "heptane", "toluene", "m_xylene", "sulfolane"],
                   ["heptane", "octane", "benzene", "m_xylene", "sulfolane"]]
 
     for j in range(len(names_list)):
-        for i in [5]:
-            property_data.InitClass(names_list=names_list[j], store_lle=store_lle,
-                                    point_discretization_rec_steps=i,
-                                    name_for_data=general_name, temperature_kelvin=temperature_kelvin,
-                                    deciding_index=deciding_index, actors_parallelized=actors_parallelized,
-                                    ge_model_name=ge_model_name, tau_given=tau_given,
-                                    experimental_data_given=experimental_data_given)
+        property_data.InitClass(names_list=names_list[j], store_lle=store_lle,
+                                point_discretization_rec_steps=5,
+                                name_for_data=general_name, temperature_kelvin=temperature_kelvin,
+                                deciding_index=deciding_index, actors_parallelized=actors_parallelized,
+                                ge_model_name=ge_model_name, tau_given=tau_given,
+                                experimental_data_given=experimental_data_given)
 
     # yuan2019
     store_lle = True
@@ -183,13 +177,12 @@ if __name__ == "__main__":
             ["ethanol", "nonanol", "tridecane", "water"]]
 
     for j in range(len(names_list)):
-        for i in [6]:
-            property_data.InitClass(names_list=names_list[j], store_lle=store_lle,
-                                    point_discretization_rec_steps=i,
-                                    name_for_data=general_name, temperature_kelvin=temperature_kelvin[j],
-                                    deciding_index=deciding_index, actors_parallelized=actors_parallelized,
-                                    ge_model_name=ge_model_name, tau_given=tau_given,
-                                    experimental_data_given=experimental_data_given)
+        property_data.InitClass(names_list=names_list[j], store_lle=store_lle,
+                                point_discretization_rec_steps=6,
+                                name_for_data=general_name, temperature_kelvin=temperature_kelvin[j],
+                                deciding_index=deciding_index, actors_parallelized=actors_parallelized,
+                                ge_model_name=ge_model_name, tau_given=tau_given,
+                                experimental_data_given=experimental_data_given)
 
     # 6 comp systems
     names_list = [["ethanol", "octanol", "nonanol", "dodecane", "tridecane", "water"],
@@ -224,13 +217,12 @@ if __name__ == "__main__":
         ]
 
     for j in range(len(names_list)):
-        for i in [6]:
-            property_data.InitClass(names_list=names_list[j], store_lle=store_lle,
-                                    point_discretization_rec_steps=i,
-                                    name_for_data=general_name, temperature_kelvin=temperature_kelvin,
-                                    deciding_index=deciding_index, actors_parallelized=actors_parallelized,
-                                    ge_model_name=ge_model_name, tau_given=tau_given,
-                                    experimental_data_given=experimental_data_given)
+        property_data.InitClass(names_list=names_list[j], store_lle=store_lle,
+                                point_discretization_rec_steps=6,
+                                name_for_data=general_name, temperature_kelvin=temperature_kelvin,
+                                deciding_index=deciding_index, actors_parallelized=actors_parallelized,
+                                ge_model_name=ge_model_name, tau_given=tau_given,
+                                experimental_data_given=experimental_data_given)
 
     # 6 comp system
     names_list = ["ethanol", "hexanol", "heptanol", "decane", "undecane", "water"]
@@ -274,13 +266,12 @@ if __name__ == "__main__":
     ]
 
     for j in range(len(names_list)):
-        for i in [6]:
-            property_data.InitClass(names_list=names_list[j], store_lle=store_lle,
-                                    point_discretization_rec_steps=i,
-                                    name_for_data=general_name, temperature_kelvin=temperature_kelvin[j],
-                                    deciding_index=deciding_index, actors_parallelized=actors_parallelized,
-                                    ge_model_name=ge_model_name, tau_given=tau_given,
-                                    experimental_data_given=experimental_data_given)
+        property_data.InitClass(names_list=names_list[j], store_lle=store_lle,
+                                point_discretization_rec_steps=6,
+                                name_for_data=general_name, temperature_kelvin=temperature_kelvin[j],
+                                deciding_index=deciding_index, actors_parallelized=actors_parallelized,
+                                ge_model_name=ge_model_name, tau_given=tau_given,
+                                experimental_data_given=experimental_data_given)
 
     # 6 comp systems
     names_list = [

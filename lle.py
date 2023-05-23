@@ -98,7 +98,7 @@ class miscibility_analysis:
                 int(2 ** self.discretized_system.recursion_steps) ** (self.num_comp - 1))
 
         print("\ncompare simplices\n")
-        start = time.time()
+        start = time.perf_counter()
         for index, simplex_points_indices in enumerate(self.convex_hull_simplices):
             delta_g_s = [self.graph[i][-1] for i in simplex_points_indices]
             real_point_indices = [self.graph_points_real_indices[i] for i in simplex_points_indices]
@@ -116,7 +116,7 @@ class miscibility_analysis:
                 miscibility_gap_simplices.append(found_simplex)
 
         print("\ncomparisons complete\n")
-        self.time_for_comparisons = time.time() - start
+        self.time_for_comparisons = time.perf_counter() - start
 
         return miscibility_gap_simplices
 
@@ -128,7 +128,6 @@ class miscibility_analysis:
         separation = self.get_index_separation(len(self.convex_hull_simplices), self.actors_for_para)
 
         print("\ncompare simplices parallel\n")
-        start = time.time()
         para_res_ids = []
         for i in range(len(separation) - 1):
             index_start = separation[i]
@@ -138,9 +137,11 @@ class miscibility_analysis:
             para_res_ids.append(self.check_simplex_list.remote(self, index_start, simplices_to_check,
                                                                expected_simplex_volume, expected_length))
 
+        time.sleep(2)
+        start = time.perf_counter()
         results = ray.get(para_res_ids)
         print("\ncomparisons complete\n")
-        self.time_for_comparisons = time.time() - start
+        self.time_for_comparisons = time.perf_counter() - start
 
         miscibility_gap_simplices = []
         for res in results:
@@ -158,7 +159,7 @@ class miscibility_analysis:
         self.graph = []  # deque([])
         self.graph_points_real_indices = []
         print("\nget delta g mix graph\n")
-        start = time.time()
+        start = time.perf_counter()
         for i, point_mfr in enumerate(self.discretized_system.points_mfr):
             self.values_delta_g_mix[i] = self.compute_delta_g_mix(point_mfr, self.gE_model, self.temperature)
 
@@ -174,13 +175,13 @@ class miscibility_analysis:
                 self.graph.append(graphvalue)
                 self.graph_points_real_indices.append(i)
 
-        self.time_for_d_g_mix = time.time() - start
+        self.time_for_d_g_mix = time.perf_counter() - start
         print("\ntime used for d_g_mix", self.time_for_d_g_mix, "\n")
 
         print("get real hull")
-        start = time.time()
+        start = time.perf_counter()
         hull = spat.ConvexHull(self.graph).simplices
-        self.time_for_conv_hull = time.time() - start
+        self.time_for_conv_hull = time.perf_counter() - start
 
         return hull
 

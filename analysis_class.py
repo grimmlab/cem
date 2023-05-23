@@ -42,10 +42,10 @@ class Analysis:
                             str(self.temperature))
 
         if store_lle and not os.path.isdir(path):
-            start_time = time.time()
+            start_time = time.perf_counter()
             lle_analysis = lle.miscibility_analysis(self.point_disc, self.ge_model, self.temperature,
                                                     construct=store_lle, path=None, actors_for_para=actors_para)
-            construction_time = time.time() - start_time
+            construction_time = time.perf_counter() - start_time
             print("\ntime", construction_time)
 
             path = lle_analysis.store_phase_eq_liquid(name, path=self.general_path)
