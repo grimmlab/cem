@@ -12,14 +12,4 @@ To reproduce the results, download the code and the folder structure as provided
 To use the CEM on other examples, provide property data (e.g., NRTL interactions parameters and feed streams) within property_data.py in the same way as for the published systems and start the process via main.py 
 
 
-Requirements:
-os
-time
-numpy
-scipy
-itertools
-copy
-ray
-matplotlib
-pandas
-importlib
+Requirements: os, time, numpy, scipy, itertools, copy, ray, matplotlib, pandas, importlib.
