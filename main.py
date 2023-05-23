@@ -6,31 +6,30 @@ import point_discretization
 
 
 if __name__ == "__main__":
-    # create point discretizations if necessary, list of lists, first el is num_comp, second rec_steps
+    if not os.path.isdir(os.path.join(os.getcwd(), "results")):
+        os.mkdir(os.path.join(os.getcwd(), "results"))
+
+    # create point discretizations if necessary
     discretizations_todo = [[2, 8], [3, 7], [4, 6], [5, 5], [6, 4]]
 
-    # dir for disc data
-    discretization_path = os.path.join(os.getcwd(), "data", "discretization")
+    discretization_path = os.path.join(os.getcwd(), "results", "discretization")
     if not os.path.isdir(discretization_path):
         os.mkdir(discretization_path)
 
     for todo_el in discretizations_todo:
         filename = os.path.join(discretization_path, str(todo_el[0]) + "_" + str(todo_el[1]))
-
-        # check if not already existing
         if not os.path.isdir(filename):
             point_discretization.PointDisc(num_comp=todo_el[0], recursion_steps=todo_el[1],
                                            load=False, store=True)
 
-    # specify ray actors
+    # specify ray actors, if equal to 0, no parallelization
     actors_parallelized = 0
 
-    # dir for results
-    results_path = os.path.join(os.getcwd(), "data", "lle_results")
+    results_path = os.path.join(os.getcwd(), "results", "lle_results")
     if not os.path.isdir(results_path):
         os.mkdir(results_path)
 
-    """# ryll2009_1
+    # ryll2009_1
     names_list = [["nitromethane", "1_hexanol"], ["benzene", "ethanol", "water"],
                   ["1_hexanol", "nitromethane", "water"], ["ethyl_formate", "ethylene_glycol", "water"],
                   ["water", "isobutanol", "furfural"], ["water", "acetone", "phenol"]]
@@ -74,7 +73,7 @@ if __name__ == "__main__":
                                 name_for_data=general_name, temperature_kelvin=temperature_kelvin,
                                 deciding_index=deciding_index, actors_parallelized=actors_parallelized,
                                 ge_model_name=ge_model_name, tau_given=tau_given,
-                                experimental_data_given=experimental_data_given)"""
+                                experimental_data_given=experimental_data_given)
 
     # chen2000
     names_list = [["n_hexane", "benzene", "sulfolane"], ["n_hexane", "toluene", "sulfolane"],
@@ -97,7 +96,7 @@ if __name__ == "__main__":
                                     ge_model_name=ge_model_name, tau_given=tau_given,
                                     experimental_data_given=experimental_data_given)
 
-    """# 4 comp systems
+    # 4 comp systems
     names_list = [["n_hexane", "n_octane", "benzene", "sulfolane"],
                   ["n_hexane", "benzene", "xylene", "sulfolane"],
                   ["n_octane", "toluene", "xylene", "sulfolane"]]
@@ -298,4 +297,4 @@ if __name__ == "__main__":
                                 name_for_data=general_name, temperature_kelvin=temperature_kelvin[j],
                                 deciding_index=deciding_index, actors_parallelized=actors_parallelized,
                                 ge_model_name=ge_model_name, tau_given=tau_given,
-                                experimental_data_given=experimental_data_given)"""
+                                experimental_data_given=experimental_data_given)

@@ -17,7 +17,7 @@ class Plotter:
             basis_vector[i] = 1 / np.sqrt(2)
             self.vertices_outer_simplex.append(basis_vector)
 
-        # the last point
+        # last point
         self.vertices_outer_simplex.append(np.ones(self.num_comp-1) * (1 + np.sqrt(self.num_comp)) / (
                 (self.num_comp - 1) * np.sqrt(2)))
 
@@ -28,7 +28,6 @@ class Plotter:
             for i in range(len(self.vertices_outer_simplex)):
                 self.vertices_outer_simplex[i] = np.matmul(rotation_matrix, self.vertices_outer_simplex[i])
 
-        # the transformation matrices may be useful at some point
         self.matrix_mfr_to_cart, self.matrix_cart_to_mfr = point_discretization.PointDisc.get_basis_change(
             self.vertices_outer_simplex)
 
@@ -52,12 +51,12 @@ class Plotter:
 
     def plot_misc_gap_simplex(self, simplex, color, only_hetero_edges=None, size=None, plot_surface=False):
         if self.num_comp == 2:
-            # we just plot the points
+            # plot points
             for i in range(self.num_comp):
                 plt.plot(simplex.points_molar_fractions[i][0], 0, marker="o", markersize=size, color=color)
 
         elif self.num_comp == 3:
-            # plot also the surface between points, except for 3 phase simplices
+            # plot the surface between points, except for 3 phase simplices
             if plot_surface and np.sum(simplex.edge_classification) < 6:
                 t1 = plt.Polygon(simplex.points_coordinates_cart, color=color)
                 plt.gca().add_patch(t1)
@@ -69,7 +68,6 @@ class Plotter:
                     plt.gca().add_patch(t1)
 
                 else:
-
                     if only_hetero_edges is None:
                         for i in range(self.num_comp):
                             for j in range(i+1, self.num_comp):
@@ -102,16 +100,9 @@ class Plotter:
                                  color=color)
 
     def transform_molar_fr_to_cartesian(self, molar_fractions):
-        """
-        A * lambda = (1, p), we cut off the first entry
-        """
-
         return np.matmul(self.matrix_mfr_to_cart, molar_fractions)[1:]
 
     def transform_cartesian_to_molar_fr(self, cartesian_point):
-        """
-        lambda = A_inv * (1, p)
-        """
         vector = np.empty(self.num_comp)
         vector[0] = 1
         vector[1:] = cartesian_point

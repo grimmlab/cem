@@ -6,22 +6,21 @@ class NRTL:
     def __init__(self, alpha_matrix, a_matrix, b_matrix, e_matrix, f_matrix, tau_matrix, tau_given,
                  different_tau=False):
         """
-        class stores the binary parameters of all components
+        Class stores the binary parameters of all components.
 
         Computes the activity coefficient of component index as described in Molecular
         Thermodynamics of Fluid-Phase Equilibria 1998. There, we have two parameters tau_ij and
-        tau_ji (non symmetric) and alpha (symmetric). When one examines the NRTL equation it is
-        easy to see that even when restricted to a subsystem, there is no change necessary to
-        the computation procedure.
+        tau_ji (non symmetric) and alpha (symmetric).
 
-        We got our property data from Aspen, therefore
-        tau_ij = a_ij + b_ij/T + e_ij*logT + f_ij*T (T in K)
+        As the interaction parameters are sometimes provided in different form, we have multiple
+        options for this. Normally, we use the Aspen standard:
+        tau_ij = a_ij + b_ij/T + e_ij*logT + f_ij*T (T in K).
 
-        if the tau_matrix is directly given, we assume that it is rescaled by division by the
-        temperature in Kelvin
+        If the tau_matrix is directly given, we assume that it is rescaled by division by the
+        temperature in Kelvin:
         tau_ij = tau_matrix_ij / T
 
-        different tau means tau is given but not rescaled
+        The bool different_tau indicates, if tau is given but not rescaled with temperature.
         """
         self.alpha_matrix = alpha_matrix
         self.tau_given = tau_given
@@ -36,7 +35,7 @@ class NRTL:
 
     def get_binary_parameters(self, temperature):
         """
-        the binary interactions depend on the temperature (provided in Kelvin) and are calculated here.
+        Binary interactions depend on the temperature (provided in Kelvin) and are calculated here.
         """
         tau_matrix = np.empty((self.num_comp, self.num_comp))
         upper_G_matrix = np.empty((self.num_comp, self.num_comp))
@@ -65,11 +64,8 @@ class NRTL:
 
     def compute_activity_coefficient(self, molar_fractions, index, temperature):
         """
-        index refers to the component, where the activity coefficient should be calculated.
+        Index refers to the component, where the activity coefficient should be calculated.
         """
-        # ensure positive temperature
-        temperature = np.max([temperature, 10])
-
         # get interaction parameters to given temperature (unit K)
         tau_matrix, upper_G_matrix = self.get_binary_parameters(temperature)
 
@@ -110,24 +106,21 @@ class NRTL:
 class UNIQUAC:
     def __init__(self, a, b, c, d, e, r, q, q_2):
         """
-        class stores the binary parameters of all components
+        Similar as NRTL above.
 
-        Computes the activity coefficient of component index as described in
-        Thermodynamics of Fluid-Phase Equilibria 1998.
-
-        given temperature in Kelvin:
+        Scaling with temperature in Kelvin:
         tau_ij = exp(a_ij + b_ij/T + c_ij*ln(T) + d_ij*T + e_ij/T^2)
 
-        if one wants to use the simplified approach with q == q' (=q_2), just insert the same values...
+        If one wants to use the simplified approach with q == q' (=q_2), just insert the same values...
         """
-        # these are all matrices
+        # parameter matrices
         self.a = a
         self.b = b
         self.c = c
         self.d = d
         self.e = e
 
-        # these are all vectors
+        # parameter vectors
         self.r = r
         self.q = q
         self.q_2 = q_2
@@ -135,12 +128,6 @@ class UNIQUAC:
         self.num_comp = len(self.r)
 
     def get_binary_parameters(self, temperature):
-        """
-        the binary interactions depend on the temperature (provided in Kelvin) and are calculated here.
-
-        given temperature in Kelvin:
-        tau_ij = exp(a_ij + b_ij/T + c_ij*ln(T) + d_ij*T + e_ij/T^2)
-        """
         tau_matrix = np.empty((self.num_comp, self.num_comp))
         for i in range(self.num_comp):
             for j in range(self.num_comp):
@@ -151,11 +138,8 @@ class UNIQUAC:
 
     def compute_activity_coefficient(self, molar_fractions, index, temperature):
         """
-        index refers to the component, where we calculate the activity coefficient.
-
         ln gamma_i = ln gamma_i^comb + ln gamma_i_red
         """
-        # set taus
         tau_matrix = self.get_binary_parameters(temperature)
 
         # some helper variables
@@ -180,7 +164,7 @@ class UNIQUAC:
 
         ln_gamma_index_comb = np.log(phi_index / molar_fractions[index]) + ((z / 2) * self.q[index] * np.log(
             theta_index / phi_index)) + l_vector[index] - ((phi_index / molar_fractions[index]) * sum([
-            molar_fractions[i] * l_vector[i] for i in range(self.num_comp)]))
+                molar_fractions[i] * l_vector[i] for i in range(self.num_comp)]))
 
         ln_gamma_index_res = self.q_2[index] * (1 - np.log(t_vector[index]) - sum([
             theta_2_vector[j] * tau_matrix[index][j] / t_vector[j] for j in range(self.num_comp)]))

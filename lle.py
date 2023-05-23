@@ -8,22 +8,18 @@ import copy
 import ray
 
 
-#todo commentary durchgehen, bereinigen
-#todo englisch
-
-
 class miscibility_gap_simplex:
     def __init__(self, points_coords_cart, points_mfr, points_ind, matrix, matrix_inv):
         """
-        class to store a simplex, which contains points which split into multiple liquid phases
+        Class to store a simplex, which contains points which split into multiple liquid phases.
 
-        all important attributes are stored in those simplices to be able to define a unit operation only
-        with those, without the simplex discretization module etc.
+        All important attributes are stored in those simplices to be able to define a unit operation only
+        with those.
 
-        these simplices always have dimension n (N=n+1 vertices) and define some phase split.
-        for this, we classify the edges into homogeneous (between neighboring points) and
-        heterogeneous. neighboring points are two points, which are contained in one subsimplex
-        from the discretization
+        These simplices always have dimension n (N=n+1 vertices) and define some phase split.
+        For this, we classify the edges into homogeneous (between neighboring points) and
+        heterogeneous. Neighboring points are two points, which are contained in one subsimplex
+        from the discretization.
         """
         self.index = None
         self.points_coordinates_cart = points_coords_cart
@@ -52,15 +48,11 @@ class miscibility_gap_simplex:
 class miscibility_analysis:
     def __init__(self, discretized_system, gE_model, temperature, construct, path, actors_for_para):
         """
-        lle analysis for an arbitrary number of components, generalization of the method described in
+        LLE analysis for an arbitrary number of components, generalization of the method described in
         Ryll2009, Ryll2012.
 
-        the whole component system can be visualized as a simplex and we need a subdivision of this simplex
-        as input along with an gE model (to compute delta_g_mix) and temperature (in Kelvin).
-
-        if actors_for_para > 0, compare simplices will be run parallelized
+        If actors_for_para > 0, compare simplices will be run parallelized.
         """
-        # SimplexDisc class (subsimplices with constant volume but not constant edge length)
         self.discretized_system = discretized_system
         self.gE_model = gE_model  # e.g. NRTL class, UNIQUAC class
         self.temperature = temperature  # unit K
@@ -92,14 +84,13 @@ class miscibility_analysis:
 
     def compare_simplices(self):
         """
-        at this stage we already have a convex hull of our graph which consists of the cartesian coordinates
+        At this stage we already have a convex hull of our graph which consists of the cartesian coordinates
         and the last entry corresponds to min(0, delta_g_mix).
 
-        now we check for all simplices in the convex hull, if those connect neighboring points in the original
-        setting (without delta_g_mix values). if a simplex does not connect neighboring points, it models a
+        Now we check for all simplices in the convex hull, if those connect neighboring points in the original
+        setting (without delta_g_mix values). If a simplex does not connect neighboring points, it models a
         phase split.
         """
-        # storage for all misc gap simplices
         miscibility_gap_simplices = []
         expected_length = np.sqrt(2) * self.discretized_system.stepsize
         expected_simplex_volume = self.discretized_system.volume_simplex(
@@ -130,7 +121,6 @@ class miscibility_analysis:
         return miscibility_gap_simplices
 
     def compare_simplices_parallel(self):
-        # storage for all misc gap simplices
         expected_length = np.sqrt(2) * self.discretized_system.stepsize
         expected_simplex_volume = self.discretized_system.volume_simplex(
             self.discretized_system.vertices_outer_simplex) / (
@@ -161,26 +151,23 @@ class miscibility_analysis:
 
     def get_hull(self):
         """
-        the simplex discretization provides us with points inside the component system, for those we compute
+        The point discretization provides us with points inside the component system, for those we compute
         delta_g_mix and get the convex hull of this graph afterwards
         """
-        # first we get all values for delta g mix
         self.values_delta_g_mix = np.empty(len(self.discretized_system.points_mfr))
         self.graph = []  # deque([])
-        self.graph_points_real_indices = []  #deque([])  # a mapping for the relevant points as we ignore d_g_mix > 0
+        self.graph_points_real_indices = []
         print("\nget delta g mix graph\n")
         start = time.time()
         for i, point_mfr in enumerate(self.discretized_system.points_mfr):
-            # print("delta_g_mix graph ", 100 * i / len(self.discretized_system.points_mfr), time.time() - start)
             self.values_delta_g_mix[i] = self.compute_delta_g_mix(point_mfr, self.gE_model, self.temperature)
 
             # only negative values matter for this method as positive values for delta_g_mix never
-            # lead to a stable state in our case
+            # lead to a stable state
             self.values_delta_g_mix[i] = np.min([0, self.values_delta_g_mix[i]])
 
             # we only care for negative values and pure components
             if self.values_delta_g_mix[i] < -1 * self.epsilon or np.max(self.discretized_system.points_mfr) > 1 - self.epsilon:
-                # set the value in our graph
                 graphvalue = np.zeros(self.num_comp)
                 graphvalue[:-1] = self.discretized_system.points_cart[i]
                 graphvalue[-1] = self.values_delta_g_mix[i]
@@ -198,12 +185,8 @@ class miscibility_analysis:
         return hull
 
     def store_phase_eq_liquid(self, name, path=None):
-        """
-        component indices are for the names of the files and folders etc
-        """
-        # initialize folders, if not existing
         if path is None:
-            standard_path = os.path.join(os.getcwd(), "data", "lle_results")
+            standard_path = os.path.join(os.getcwd(), "results", "lle_results")
 
         else:
             standard_path = path
@@ -222,9 +205,8 @@ class miscibility_analysis:
 
         with open(os.path.join(standard_path, "num_phase_stats.txt"), "w+") as file:
             file.write("num phases stat: " + str(self.num_phase_stats) + "\n\n")
-        
 
-        # store misc gap simplices with all attributes
+        # store misc gap simplices with all important attributes
         misc_gap_simpl_p_coords_cart = np.empty((len(self.miscibility_gap_simplices), self.num_comp, self.num_comp - 1))
         misc_gap_simpl_p_mfrs = np.empty((len(self.miscibility_gap_simplices), self.num_comp, self.num_comp))
         misc_gap_simpl_p_ind = np.empty((len(self.miscibility_gap_simplices), self.num_comp))
@@ -246,7 +228,7 @@ class miscibility_analysis:
             misc_gap_simpl_mat[i] = simplex.matrix
             misc_gap_simpl_mat_inv[i] = simplex.matrix_inv
             edge_classifications[i] = simplex.edge_classification
-            # we store each cluster and add a -1 to mark its end
+            # we store each cluster and add -1 mark(s) its end
             current_ind = 0
             for cluster in simplex.phase_blocks:
                 for j in cluster:
@@ -256,7 +238,6 @@ class miscibility_analysis:
                 phase_blocks[i][current_ind] = -1
                 current_ind = current_ind + 1
 
-            # mark end by multiple -1
             phase_blocks[i][current_ind:] = -1
 
         np.save(os.path.join(standard_path, "simpl_p_coords_cart.npy"), misc_gap_simpl_p_coords_cart)
@@ -270,8 +251,6 @@ class miscibility_analysis:
         return standard_path
 
     def load_phase_eq_liquid(self, path):
-        # load necessary data from given path
-        # init misc gap simplices
         misc_gap_simpl_p_coords_cart = np.load(os.path.join(path, "simpl_p_coords_cart.npy"))
         misc_gap_simpl_p_mfrs = np.load(os.path.join(path, "simpl_p_mfrs.npy"))
 
@@ -321,9 +300,7 @@ class miscibility_analysis:
             d_g_mix = np.min([0, miscibility_analysis.compute_delta_g_mix(mfr, self.gE_model, self.temperature)])
 
             # we only care for negative values and pure components
-            if d_g_mix < -1 * epsilon or np.max(
-                    mfr) > 1 - epsilon:
-                # set the value in our graph
+            if d_g_mix < -1 * epsilon or np.max(mfr) > 1 - epsilon:
                 graphvalue = np.zeros(len(mfr))
                 graphvalue[:-1] = cart_coords_list[j]
                 graphvalue[-1] = d_g_mix
@@ -364,7 +341,6 @@ class miscibility_analysis:
                       discretized_system, expected_length, real_point_indices, gE_model, temperature):
         """
         check if a simplex of the convex hull defines a misc gap simplex
-        delta_g_s is contains the d_g_mix values of the points of the simplex
         """
         epsilon = 0.0001
         simplex_to_return = None
@@ -429,7 +405,7 @@ class miscibility_analysis:
                         while len(homogeneous_edges) > 0 or len(todo) > 0:
                             # we always compare the remaining homogeneous edges with a current edge
                             if len(todo) == 0:
-                                # if to_to is empty, a new cluster was started
+                                # if empty, a new cluster is started
                                 current_edge = homogeneous_edges[0]
                                 homogeneous_edges.remove(homogeneous_edges[0])
                                 cluster.append(current_edge)
@@ -445,7 +421,6 @@ class miscibility_analysis:
                                 if current_edge[0] in edge or current_edge[1] in edge:
                                     to_remove.append(i)
 
-                            # add to cluster and to to_do
                             for i in to_remove:
                                 cluster.append(homogeneous_edges[i])
                                 todo.append(homogeneous_edges[i])
@@ -454,13 +429,13 @@ class miscibility_analysis:
                             for i in reversed(to_remove):
                                 homogeneous_edges.remove(homogeneous_edges[i])
 
-                            # if we did not find any new edges for the cluster and do not have anything in
-                            # the to_do list left, we need a new cluster
+                            # if we did not find any new edges for the cluster and do not have anything
+                            # to do, we need a new cluster
                             if len(to_remove) == 0 and len(todo) == 0:
                                 clusters.append(cluster)
                                 cluster = []
 
-                        # for each cluster, we check now, if it is exactly a low-dimensional simplex (not less and
+                        # for each cluster, we check now, if it is exactly a low-dimensional simplex (not less or
                         # more, as then we cannot model the phase split linearly and we omit this misc gap simplex)
                         omit_candidate_simplex = False
                         for i, cluster in enumerate(clusters):
@@ -476,7 +451,7 @@ class miscibility_analysis:
                                     point_ind_list.append(edge[1])
 
                             # now we just check for every point index, if there are exactly k edges containing this
-                            # index in the cluster (which means we would have a simplex
+                            # index in the cluster (which means we would have a simplex)
                             for point_index in point_ind_list:
                                 edge_count = 0
                                 for edge in cluster:
@@ -491,11 +466,11 @@ class miscibility_analysis:
                             # we add the point list, which specifies the phase
                             candidate_simplex.phase_blocks.append(point_ind_list)
 
-                        # as explained in ryll2009, sometimes we encounter non legal misc gap simplices close to the
-                        # boundary and critical point (this means simplices, which we cannot model as for example
-                        # the phase blocks are not isolated). here we try to educe them, which means we check, if
-                        # we can set some of the heterogeneous edges to homogeneous to obain a legal misc gap
-                        # simplex (procedure is explained in the function)
+                        # sometimes we encounter non legal misc gap simplices (e.g. close to the
+                        # critical point). This means simplices, which we cannot model as for example
+                        # the phase blocks are not isolated. Here we try to reduce them, which means
+                        # we check, if some of the heterogeneous edges are homogeneous (similar as
+                        # discussed in ryll2009)and if this leads to a legal misc gap simplex.
                         reduced_simplex, stat_std = miscibility_analysis.reduce_misc_gap_simplex(candidate_simplex,
                             gE_model, temperature, discretized_system)
 
@@ -505,7 +480,7 @@ class miscibility_analysis:
                             if not omit_candidate_simplex:
                                 vert_num = 0
                                 for cl in candidate_simplex.phase_blocks:
-                                    for vert in cl:
+                                    for _ in cl:
                                         vert_num = vert_num + 1
 
                                 # just for safety
@@ -523,18 +498,6 @@ class miscibility_analysis:
 
     @staticmethod
     def reduce_misc_gap_simplex(simplex, gE_model, temperature, discretized_system):
-        """
-        misc gap simplex is given, we check if some of the heterogeneous edges could be homogeneous.
-
-        as explained before and in ryll2009, sometimes close to critical point or boundary of multiphase region,
-        one could encounter non legal misc gap simplices due to sparse discretization. in this function, we check if
-        we can still model or use this simplex by setting some of the hetero edges to homogeneous.
-
-        basically, we check here, if we can set some of the heterogeneous edges to homogeneous and still get a legal
-        misc gap simplex (with all the requirements as isolated phase blocks etc). in the end we compare, which of the
-        options seems to be plausible (based on isoactivity and also distribution of lengths of the heterogeneous
-        edges).
-        """
         num_comp = len(simplex.points_indices)
 
         # get all heterogeneous edges and the euclidean lengths
@@ -544,14 +507,11 @@ class miscibility_analysis:
             for j in range(i + 1, num_comp):
                 if simplex.edge_classification[i][j] == 1:
                     hetero_index_pairs.append([i, j])
-                    # euclidean length
                     hetero_lengths.append(miscibility_analysis.distance_for_reduce(simplex.points_molar_fractions[i],
                                                                                    simplex.points_molar_fractions[j]))
 
         candidate_indices = []
-        # if there are edges, which are quite short or shorter than at least 60 percent of the max length, we
-        # will try to reduce the simplex in the further process.
-        # Furthermore, we store all heterogeneous edges as candidates, which we will try to sort out later.
+        # if there are edges, which are quite short, we will try to reduce them.
         max_len = np.max(hetero_lengths)
         must_reduce = False
         for i, pair in enumerate(hetero_index_pairs):
@@ -689,7 +649,7 @@ class miscibility_analysis:
 
         # now we maybe have some candidate simplices, which are of reduced form, compared to the original simplex
         simplex_to_return = None
-        # get std for normal simplex, if we have isoact, don't change it
+        # get std for normal simplex, if we have isoactivity condition, don't change it
         std_border = 0.05
 
         _, std = miscibility_analysis.act_mean_std_analysis(simplex, gE_model, temperature, num_comp,
@@ -833,12 +793,6 @@ class miscibility_analysis:
                         break
 
                 if not in_gap:
-                    # find at least the complementary simplex
-                    """for simplex_ind, simplex in enumerate(self.complementary_simplices):
-                        if self.point_in_simplex_via_bary(simplex, feed_cartesian):
-                            relevant_simplex = self.complementary_simplices[simplex_ind]
-                            break"""
-
                     return [feed_molar_flowrates], relevant_simplex
 
             # we get the barycentric coordinates of our feed with respect to the relevant simplex
@@ -847,7 +801,7 @@ class miscibility_analysis:
             bary_feed_rel_simplex = np.matmul(relevant_simplex.matrix_inv, ext_feed_cartesian)
 
             # the split ratios are the sum of the barycentric coordinates of the points, which
-            # belong to the respective phase block (proof will be given in some publication)
+            # belong to the respective phase block
             num_phases = len(relevant_simplex.phase_blocks)
             split_ratios = np.zeros(num_phases)
 

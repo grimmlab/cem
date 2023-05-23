@@ -9,15 +9,10 @@ import lle
 
 
 class Analysis:
-    """
-    class which takes property data and several information as input and generates results for the
-    paper
-    """
     def __init__(self, num_comp, names_list, point_discretization_rec_steps, ge_model,
                  store_lle, experimental_data, temperature_kelvin,
                  deciding_index, actors_para, general_name):
-        # create a general folder for this source if not existing
-        self.general_path = os.path.join(os.getcwd(), "data", "lle_results", general_name)
+        self.general_path = os.path.join(os.getcwd(), "results", "lle_results", general_name)
         if not os.path.isdir(self.general_path):
             os.mkdir(self.general_path)
 
@@ -25,16 +20,14 @@ class Analysis:
         self.comp_names = names_list
         self.temperature = temperature_kelvin
 
-        # simpl disc class, just loaded
         self.point_disc = point_discretization.PointDisc(num_comp=num_comp,
                                                          recursion_steps=point_discretization_rec_steps,
                                                          load=True, store=False)
 
-        # init plotter, obviously, we can only plot something for 4 or less components:
+        # obviously, we can only plot something for 4 or less components:
         if num_comp <= 4:
             self.plotter_instance = plotter.Plotter(num_comp=num_comp)
 
-        # initialize the ge model
         self.ge_model = ge_model
         print("lle analysis for", self.comp_names)
 
@@ -48,9 +41,7 @@ class Analysis:
             point_discretization_rec_steps) + "___" + name + "_temp_" +
                             str(self.temperature))
 
-        # only create if not existing
         if store_lle and not os.path.isdir(path):
-            # lle analysis
             start_time = time.time()
             lle_analysis = lle.miscibility_analysis(self.point_disc, self.ge_model, self.temperature,
                                                     construct=store_lle, path=None, actors_for_para=actors_para)
@@ -79,7 +70,6 @@ class Analysis:
                                                    construct=False, path=path, actors_for_para=actors_para)
 
         if experimental_data is not None:
-            # search for correct index
             index = None
             for i in range(len(experimental_data.names)):
                 if experimental_data.compare_names(self.comp_names, experimental_data.names[i]) and \
@@ -126,7 +116,6 @@ class Analysis:
                         experimental_data.corresponding_phases[index][j][first_index_exp - 1]))
 
             if len(experimental_data.feeds[index]) > len(missing_indices):
-                # we divide by the number of phases, 2, and the number of feeds and the number of components as chen
                 sum_squared_differences = np.sqrt(sum_squared_differences /
                     (self.num_comp * 2 * (len(experimental_data.feeds[index]) - len(missing_indices))))
                 sum_abs_differences = sum_abs_differences / (

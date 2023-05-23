@@ -7,25 +7,23 @@ import os
 class PointDisc:
     def __init__(self, num_comp, recursion_steps, load, store):
         """
-        num_comp: the number of components and should be >= 2
+        num_comp: the number of components should be >= 2
         recursion steps: defines the level of discretization and should be > 1
         load: if this discretization already has been stored, we can load it this way
         store: if load is False, the discretization will be constructed and stored if this is True
 
-        a surrounding simplex for the component system will be defined (each pure component is a vertex).
-        contrary to the simplex discretization we just get the points here to be faster.
+        A surrounding simplex for the component system will be defined (each pure component is a vertex).
         """
-        self.num_comp = num_comp  # number of components
+        self.num_comp = num_comp
         self.n = self.num_comp - 1  # we need a simplex in R^n to store the surrounding simplex
         self.recursion_steps = recursion_steps
         self.epsilon = 0.0001  # for comparisons
 
-        # path variable for load and store
-        self.filename = "data//discretization//" + str(self.num_comp) + "_" + str(self.recursion_steps) + "//" + str(
+        self.filename = "results//discretization//" + str(self.num_comp) + "_" + str(self.recursion_steps) + "//" + str(
             self.num_comp) + "_" + str(self.recursion_steps)
 
-        if not os.path.isdir("data//discretization//" + str(self.num_comp) + "_" + str(self.recursion_steps)):
-            os.mkdir("data//discretization//" + str(self.num_comp) + "_" + str(self.recursion_steps))
+        if not os.path.isdir("results//discretization//" + str(self.num_comp) + "_" + str(self.recursion_steps)):
+            os.mkdir("results//discretization//" + str(self.num_comp) + "_" + str(self.recursion_steps))
 
         self.vertices_outer_simplex = self.construct_outer_simplex()
 
@@ -38,13 +36,11 @@ class PointDisc:
 
         self.stepsize = 1 / int(2 ** self.recursion_steps)
 
-        # load discretization if specified
         if load:
             self.points_mfr = np.load(self.filename + "_molar_fr_p" + ".npy")
             self.points_cart = np.load(self.filename + "_cart_coords_p" + ".npy")
 
         else:
-            # if we do not load anything, we construct the discretization
             # add pure components as first points
             for v in self.vertices_outer_simplex:
                 self.points_cart.append(v)
@@ -58,9 +54,6 @@ class PointDisc:
                 np.save(self.filename + "_cart_coords_p", self.points_cart)
 
     def get_points(self, base):
-        """
-        just loop over all combinations with itertools
-        """
         todo = list(itertools.combinations_with_replacement(list(range(base + 1)), self.num_comp - 1))
         stepsize = 1 / base
 
@@ -68,7 +61,7 @@ class PointDisc:
         while len(todo) > 0:
             index = index + 1
             combination = todo.pop()
-            # if sum is zero, then it is the last pure
+            # if sum is zero, then it is the last pure component
             if 0 < sum(combination) <= base:
                 # pures are already added
                 if max(combination) != base:
@@ -78,8 +71,7 @@ class PointDisc:
                         self.points_cart.append(self.transform_molar_fr_to_cartesian(self.points_mfr[-1]))
 
     def construct_outer_simplex(self):
-        # first, construct a regular n simplex in [0,1]^n
-        # (explained in the common literature or wiki...)
+        # construct a regular n simplex in [0,1]^n
         vertices_outer_simplex = []
         for i in range(self.n):
             basis_vector = np.zeros(self.n)
@@ -102,7 +94,6 @@ class PointDisc:
         """
         A * lambda = (1, p), we cut off the first entry
         """
-
         return np.matmul(self.matrix_mfr_to_cart, molar_fractions)[1:]
 
     def transform_cartesian_to_molar_fr(self, cartesian_point):
@@ -137,6 +128,6 @@ class PointDisc:
     @staticmethod
     def volume_simplex(vertices):
         """
-        for a n-simplex in R^n
+        Works for a n-simplex in R^n.
         """
         return np.abs(np.linalg.det(vertices[1:] - vertices[0])) / np.math.factorial(len(vertices) - 1)

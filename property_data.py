@@ -1,4 +1,9 @@
 
+"""
+This file mainly contains classes with property data (either parameters or experimental lle data) for
+various systems and sources.
+"""
+
 import itertools
 import numpy as np
 import os
@@ -9,17 +14,8 @@ import importlib
 import thermo_models
 import analysis_class
 
-"""
-this file mainly contains classes with property data (either parameters or experimental lle data) for
-various systems and sources.
-"""
-
 
 def convert_mass_fr_to_molar_fr(mass_fractions, molar_masses):
-    """
-    molar masses and mass fractions have to be in same order
-    """
-    # total mass of 1...
     molar_fractions = np.zeros(len(mass_fractions))
     denominator = 0
     for i in range(len(mass_fractions)):
@@ -33,13 +29,13 @@ def convert_mass_fr_to_molar_fr(mass_fractions, molar_masses):
 
 class InitClass:
     """
-    takes names and some other inputs and sets all the parameters, which are needed to set
+    Takes names and some other inputs and sets all the parameters, which are needed to set
     up a lle analysis (for example the interactions parameters are immediately processed to the
-    relevant ge_model here). the lle analysis is then executed.
+    relevant ge_model here). The lle analysis is then executed.
 
-    all NRTL parameters are in classes NRTL_ + name_for_data
-    all UNIQUAC parameters are in classes UNIQUAC_ + name_for_data
-    all experimental data is in classes Experimental_ + name_for_data
+    NRTL parameters are in classes NRTL_ + name_for_data
+    UNIQUAC parameters are in classes UNIQUAC_ + name_for_data
+    Experimental data is in classes Experimental_ + name_for_data
     """
     def __init__(self, names_list, point_discretization_rec_steps, name_for_data,
                  temperature_kelvin, store_lle, deciding_index, actors_parallelized,
@@ -109,8 +105,8 @@ class InitClass:
 
 class UNIQUAC_Pure_Ryll2009_1:
     """
-    parameters for pure components listed in dissertation of ryll. not available in digital form,
-    therefore listed by hand...
+    Parameters for pure components listed in dissertation of Ryll. Not available in digital form,
+    therefore listed by hand.
     """
     def __init__(self):
         self.names = ["water", "benzene", "nitromethane", "1_hexanol", "ethanol",
@@ -136,8 +132,9 @@ class UNIQUAC_Pure_Ryll2009_1:
 
 class UNIQUAC_Pure_Ryll2009_2:
     """
-    parameters for pure components listed in dissertation of ryll, this class is just needed as
-    those components are also partly present with other binary interactions in the first class...
+    Parameters for pure components listed in dissertation of Ryll. Not available in digital form,
+    therefore listed by hand. This class is just needed as those components are also partly present
+    with other binary interactions in the first class.
     """
     def __init__(self):
         self.names = ["water", "nitromethane", "nonanol"]
@@ -155,11 +152,7 @@ class UNIQUAC_Pure_Ryll2009_2:
 
 
 class UNIQUAC_Ryll2009_1:
-    """
-    binary interactions from ryll dissertation
-    """
     def __init__(self):
-        # format name_1--name_2
         self.binary_names = []
 
         self.a = []
@@ -222,9 +215,6 @@ class UNIQUAC_Ryll2009_1:
                       np.zeros(2), np.zeros(2))
 
     def get_binary_interaction_para(self, name_1, name_2):
-        """
-        names are strings
-        """
         for ind, name in enumerate(self.binary_names):
             if str(name_1 + "--" + name_2) == str(name):
                 return [self.a[ind], self.b[ind], self.c[ind], self.d[ind], self.e[ind]]
@@ -236,7 +226,6 @@ class UNIQUAC_Ryll2009_1:
         return None
 
     def combine_interactions(self, names):
-        # get q, q_tilde and r lists
         q_list = np.zeros(len(names))
         q_tilde_list = np.zeros(len(names))
         r_list = np.zeros(len(names))
@@ -253,7 +242,6 @@ class UNIQUAC_Ryll2009_1:
                 q_tilde_list[i] = paras[1]
                 r_list[i] = paras[2]
 
-        # get binary interactions
         a = np.zeros((len(names), len(names)))
         b = np.zeros((len(names), len(names)))
         c = np.zeros((len(names), len(names)))
@@ -285,11 +273,7 @@ class UNIQUAC_Ryll2009_1:
 
 
 class UNIQUAC_Ryll2009_2:
-    """
-    binary interactions from ryll dissertation
-    """
     def __init__(self):
-        # format name_1--name_2
         self.binary_names = []
 
         self.a = []
@@ -298,7 +282,6 @@ class UNIQUAC_Ryll2009_2:
         self.d = []
         self.e = []
 
-        #ryll diss
         self.add_pair("nonanol", "nitromethane", np.zeros(2), np.array([-375.55, -45.711]), np.zeros(2),
                       np.zeros(2), np.zeros(2))
         self.add_pair("nonanol", "water", np.zeros(2), np.array([-120.3, -366.53]), np.zeros(2),
@@ -307,9 +290,6 @@ class UNIQUAC_Ryll2009_2:
                       np.zeros(2), np.zeros(2))
 
     def get_binary_interaction_para(self, name_1, name_2):
-        """
-        names are strings
-        """
         for ind, name in enumerate(self.binary_names):
             if str(name_1 + "--" + name_2) == str(name):
                 return [self.a[ind], self.b[ind], self.c[ind], self.d[ind], self.e[ind]]
@@ -321,7 +301,6 @@ class UNIQUAC_Ryll2009_2:
         return None
 
     def combine_interactions(self, names):
-        # get q, q_tilde and r lists
         q_list = np.zeros(len(names))
         q_tilde_list = np.zeros(len(names))
         r_list = np.zeros(len(names))
@@ -338,7 +317,6 @@ class UNIQUAC_Ryll2009_2:
                 q_tilde_list[i] = paras[1]
                 r_list[i] = paras[2]
 
-        # get binary interactions
         a = np.zeros((len(names), len(names)))
         b = np.zeros((len(names), len(names)))
         c = np.zeros((len(names), len(names)))
@@ -371,12 +349,6 @@ class UNIQUAC_Ryll2009_2:
 
 class NRTL_Chen2000_1:
     def __init__(self):
-        """
-        if no detailed parameters (a, b, e, f) are given, just set values for a_ij, as the
-        following formula is used for the calculation of tau_ij:
-        tau_ij = a_ij + b_ij/T + e_ij*logT + f_ij*T (T in K)
-        """
-        # format name_1--name_2
         self.binary_names = []
 
         self.alphas = []
@@ -386,7 +358,6 @@ class NRTL_Chen2000_1:
         self.f = []
         self.tau = []
 
-        # the parameters listed from here are from chen2000
         self.add_pair("n_hexane", "benzene", alphas=np.array([0.2, 0.2]), a=np.zeros(2),
                       b=np.zeros(2), e=np.zeros(2), f=np.zeros(2), tau=np.array([1.523, 90.89]))
         self.add_pair("n_hexane", "sulfolane", alphas=np.array([0.2, 0.2]), a=np.zeros(2),
@@ -419,9 +390,6 @@ class NRTL_Chen2000_1:
                       b=np.zeros(2), e=np.zeros(2), f=np.zeros(2), tau=np.zeros(2))
 
     def get_binary_interaction_para(self, name_1, name_2):
-        """
-        names are strings
-        """
         for ind, name in enumerate(self.binary_names):
             if str(name_1 + "--" + name_2) == str(name):
                 return [self.alphas[ind], self.a[ind], self.b[ind], self.e[ind], self.f[ind], self.tau[ind]]
@@ -433,7 +401,6 @@ class NRTL_Chen2000_1:
         return None
 
     def combine_interactions(self, names):
-        # get binary interactions
         alphas = np.zeros((len(names), len(names)))
         a = np.zeros((len(names), len(names)))
         b = np.zeros((len(names), len(names)))
@@ -468,13 +435,11 @@ class NRTL_Chen2000_1:
 
 class Experimental_Chen2000_1:
     def __init__(self):
-        # each element is a list containing the names as strings
         self.names = []
         self.feeds = []
         self.corresponding_phases = []
         self.temperatures = []
 
-        #
         temp = 298.15
         names = [["n_hexane", "benzene", "sulfolane"], ["n_hexane", "toluene", "sulfolane"],
                  ["n_hexane", "xylene", "sulfolane"], ["n_octane", "benzene", "sulfolane"],
@@ -489,18 +454,13 @@ class Experimental_Chen2000_1:
                        "Table_2_1", "Table_2_2", "Table_2_3",
                        "Table_5_1", "Table_5_2", "Table_5_3",
                        "Table_7"]
-        excel_path = os.path.join(os.getcwd(), "data", "source_property_data", "chen_2000_1", "to_read.xlsx")
+        excel_path = os.path.join(os.getcwd(), "source_property_data", "chen_2000_1", "to_read.xlsx")
 
         for j in range(len(names)):
             data = pd.read_excel(excel_path, sheet_name=sheet_names[j], header=None, index_col=None)
             self.add_system(temp, names[j], molar_fractions_given, molar_masses, data)
 
     def add_system(self, temp, names, molar_fractions_given, molar_masses, data):
-        """
-        names is a list of strings
-
-        feeds are calculated as average of the corresponding phases
-        """
         matrix_to_read = data.to_numpy()
         num_comp = len(names)
         phase_1 = np.zeros((len(matrix_to_read), num_comp))
@@ -511,7 +471,6 @@ class Experimental_Chen2000_1:
             phase_2[i] = matrix_to_read[i][num_comp:2 * num_comp]
 
         if not molar_fractions_given:
-            # convert to molar_fractions
             for i in range(len(phase_1)):
                 phase_1[i] = convert_mass_fr_to_molar_fr(phase_1[i], molar_masses)
                 phase_2[i] = convert_mass_fr_to_molar_fr(phase_2[i], molar_masses)
@@ -536,9 +495,6 @@ class Experimental_Chen2000_1:
 
     @staticmethod
     def compare_names(names_1, names_2):
-        """
-        returns if two lists of names are equal (not depending on order)
-        """
         if len(names_1) != len(names_2):
             return False
 
@@ -559,12 +515,6 @@ class Experimental_Chen2000_1:
 
 class NRTL_Chen2001:
     def __init__(self):
-        """
-        if no detailed parameters (a, b, e, f) are given, just set values for a_ij, as the
-        following formula is used for the calculation of tau_ij:
-        tau_ij = a_ij + b_ij/T + e_ij*logT + f_ij*T (T in K)
-        """
-        # format name_1--name_2
         self.binary_names = []
 
         self.alphas = []
@@ -574,7 +524,6 @@ class NRTL_Chen2001:
         self.f = []
         self.tau = []
 
-        # the parameters listed from here are from chen2001
         self.add_pair("hexane", "heptane", alphas=np.array([0.2, 0.2]), a=np.zeros(2),
                       b=np.zeros(2), e=np.zeros(2), f=np.zeros(2), tau=np.array([0, 0]))
         self.add_pair("hexane", "octane", alphas=np.array([0.2, 0.2]), a=np.zeros(2),
@@ -619,9 +568,6 @@ class NRTL_Chen2001:
                       b=np.zeros(2), e=np.zeros(2), f=np.zeros(2), tau=np.array([413.7, 145.1]))
 
     def get_binary_interaction_para(self, name_1, name_2):
-        """
-        names are strings
-        """
         for ind, name in enumerate(self.binary_names):
             if str(name_1 + "--" + name_2) == str(name):
                 return [self.alphas[ind], self.a[ind], self.b[ind], self.e[ind], self.f[ind], self.tau[ind]]
@@ -633,7 +579,6 @@ class NRTL_Chen2001:
         return None
 
     def combine_interactions(self, names):
-        # get binary interactions
         alphas = np.zeros((len(names), len(names)))
         a = np.zeros((len(names), len(names)))
         b = np.zeros((len(names), len(names)))
@@ -668,13 +613,11 @@ class NRTL_Chen2001:
 
 class Experimental_Chen2001:
     def __init__(self):
-        # each element is a list containing the names as strings
         self.names = []
         self.feeds = []
         self.corresponding_phases = []
         self.temperatures = []
 
-        #
         temp = 298.15
         names = [["hexane", "heptane", "toluene", "sulfolane"],
                  ["heptane", "octane", "m_xylene", "sulfolane"],
@@ -685,18 +628,13 @@ class Experimental_Chen2001:
         molar_masses = []
         sheet_names = ["Table_1_1", "Table_1_2", "Table_1_3",
                        "Table_2_1", "Table_2_2"]
-        excel_path = os.path.join(os.getcwd(), "data", "source_property_data", "chen_2001", "to_read.xlsx")
+        excel_path = os.path.join(os.getcwd(), "source_property_data", "chen_2001", "to_read.xlsx")
 
         for j in range(len(names)):
             data = pd.read_excel(excel_path, sheet_name=sheet_names[j], header=None, index_col=None)
             self.add_system(temp, names[j], molar_fractions_given, molar_masses, data)
 
     def add_system(self, temp, names, molar_fractions_given, molar_masses, data):
-        """
-        names is a list of strings
-
-        feeds are calculated as average of the corresponding phases
-        """
         matrix_to_read = data.to_numpy()
         num_comp = len(names)
         phase_1 = np.zeros((len(matrix_to_read), num_comp))
@@ -707,7 +645,6 @@ class Experimental_Chen2001:
             phase_2[i] = matrix_to_read[i][num_comp:2 * num_comp]
 
         if not molar_fractions_given:
-            # convert to molar_fractions
             for i in range(len(phase_1)):
                 phase_1[i] = convert_mass_fr_to_molar_fr(phase_1[i], molar_masses)
                 phase_2[i] = convert_mass_fr_to_molar_fr(phase_2[i], molar_masses)
@@ -732,9 +669,6 @@ class Experimental_Chen2001:
 
     @staticmethod
     def compare_names(names_1, names_2):
-        """
-        returns if two lists of names are equal (not depending on order)
-        """
         if len(names_1) != len(names_2):
             return False
 
@@ -755,12 +689,6 @@ class Experimental_Chen2001:
 
 class NRTL_Yuan2019:
     def __init__(self):
-        """
-        if no detailed parameters (a, b, e, f) are given, just set values for a_ij, as the
-        following formula is used for the calculation of tau_ij:
-        tau_ij = a_ij + b_ij/T + e_ij*logT + f_ij*T (T in K)
-        """
-        # format name_1--name_2
         self.binary_names = []
 
         self.alphas = []
@@ -770,7 +698,6 @@ class NRTL_Yuan2019:
         self.f = []
         self.tau = []
 
-        # the parameters listed from here are from yuan2019
         self.add_pair("octanol", "nonanol", alphas=np.array([0.3, 0.3]), a=np.array([5.46, -0.66]),
                       b=np.array([-1329.55, -158.88]), e=np.zeros(2), f=np.zeros(2), tau=np.zeros(2))
         self.add_pair("octanol", "water", alphas=np.array([0.26, 0.26]), a=np.array([-1.45, 5.92]),
@@ -803,9 +730,6 @@ class NRTL_Yuan2019:
                       b=np.array([-48.69, 50.33]), e=np.zeros(2), f=np.zeros(2), tau=np.zeros(2))
 
     def get_binary_interaction_para(self, name_1, name_2):
-        """
-        names are strings
-        """
         for ind, name in enumerate(self.binary_names):
             if str(name_1 + "--" + name_2) == str(name):
                 return [self.alphas[ind], self.a[ind], self.b[ind], self.e[ind], self.f[ind], self.tau[ind]]
@@ -817,7 +741,6 @@ class NRTL_Yuan2019:
         return None
 
     def combine_interactions(self, names):
-        # get binary interactions
         alphas = np.zeros((len(names), len(names)))
         a = np.zeros((len(names), len(names)))
         b = np.zeros((len(names), len(names)))
@@ -852,13 +775,11 @@ class NRTL_Yuan2019:
 
 class Experimental_Yuan2019:
     def __init__(self):
-        # each element is a list containing the names as strings
         self.names = []
         self.feeds = []
         self.corresponding_phases = []
         self.temperatures = []
 
-        #
         temp = [293.15, 298.15, 303.15,
                 293.15, 298.15, 303.15,
                 293.15, 298.15, 303.15,
@@ -904,18 +825,13 @@ class Experimental_Yuan2019:
                        "Table_4_1", "Table_4_2", "Table_4_3",
                        "Table_5_1", "Table_5_2", "Table_5_3",
                        "Table_7_1", "Table_7_2", "Table_7_3"]
-        excel_path = os.path.join(os.getcwd(), "data", "source_property_data", "yuan_2019", "to_read.xlsx")
+        excel_path = os.path.join(os.getcwd(), "source_property_data", "yuan_2019", "to_read.xlsx")
 
         for j in range(len(names)):
             data = pd.read_excel(excel_path, sheet_name=sheet_names[j], header=None, index_col=None)
             self.add_system(temp[j], names[j], molar_fractions_given, molar_masses[j], data)
 
     def add_system(self, temp, names, molar_fractions_given, molar_masses, data):
-        """
-        names is a list of strings
-
-        feeds are calculated as average of the corresponding phases
-        """
         matrix_to_read = data.to_numpy()
         num_comp = len(names)
         phase_1 = np.zeros((len(matrix_to_read), num_comp))
@@ -926,7 +842,6 @@ class Experimental_Yuan2019:
             phase_2[i] = matrix_to_read[i][num_comp:2 * num_comp]
 
         if not molar_fractions_given:
-            # convert to molar_fractions
             for i in range(len(phase_1)):
                 phase_1[i] = convert_mass_fr_to_molar_fr(phase_1[i], molar_masses)
                 phase_2[i] = convert_mass_fr_to_molar_fr(phase_2[i], molar_masses)
@@ -951,9 +866,6 @@ class Experimental_Yuan2019:
 
     @staticmethod
     def compare_names(names_1, names_2):
-        """
-        returns if two lists of names are equal (not depending on order)
-        """
         if len(names_1) != len(names_2):
             return False
 
@@ -990,7 +902,6 @@ class UNIQUAC_Pure_Yuan2018:
 
 class UNIQUAC_Yuan2018:
     def __init__(self):
-        # format name_1--name_2
         self.binary_names = []
 
         self.a = []
@@ -1042,7 +953,6 @@ class UNIQUAC_Yuan2018:
         return None
 
     def combine_interactions(self, names):
-        # get q, q_tilde and r lists
         q_list = np.zeros(len(names))
         q_tilde_list = np.zeros(len(names))
         r_list = np.zeros(len(names))
@@ -1059,7 +969,6 @@ class UNIQUAC_Yuan2018:
                 q_tilde_list[i] = paras[1]
                 r_list[i] = paras[2]
 
-        # get binary interactions
         a = np.zeros((len(names), len(names)))
         b = np.zeros((len(names), len(names)))
         c = np.zeros((len(names), len(names)))
@@ -1092,13 +1001,11 @@ class UNIQUAC_Yuan2018:
 
 class Experimental_Yuan2018:
     def __init__(self):
-        # each element is a list containing the names as strings
         self.names = []
         self.feeds = []
         self.corresponding_phases = []
         self.temperatures = []
 
-        #
         temp = 298.15
         names = [
             ["ethanol", "hexanol", "decane", "water"],
@@ -1117,18 +1024,13 @@ class Experimental_Yuan2018:
         ]
         sheet_names = ["Table_3", "Table_4", "Table_5",
                        "Table_6", "Table_11"]
-        excel_path = os.path.join(os.getcwd(), "data", "source_property_data", "yuan_2018", "to_read.xlsx")
+        excel_path = os.path.join(os.getcwd(), "source_property_data", "yuan_2018", "to_read.xlsx")
 
         for j in range(len(names)):
             data = pd.read_excel(excel_path, sheet_name=sheet_names[j], header=None, index_col=None)
             self.add_system(temp, names[j], molar_fractions_given, molar_masses[j], data)
 
     def add_system(self, temp, names, molar_fractions_given, molar_masses, data):
-        """
-        names is a list of strings
-
-        feeds are calculated as average of the corresponding phases
-        """
         matrix_to_read = data.to_numpy()
         num_comp = len(names)
         phase_1 = np.zeros((len(matrix_to_read), num_comp))
@@ -1139,7 +1041,6 @@ class Experimental_Yuan2018:
             phase_2[i] = matrix_to_read[i][num_comp:2 * num_comp]
 
         if not molar_fractions_given:
-            # convert to molar_fractions
             for i in range(len(phase_1)):
                 phase_1[i] = convert_mass_fr_to_molar_fr(phase_1[i], molar_masses)
                 phase_2[i] = convert_mass_fr_to_molar_fr(phase_2[i], molar_masses)
@@ -1200,7 +1101,6 @@ class UNIQUAC_Pure_Yuan2020:
 
 class UNIQUAC_Yuan2020:
     def __init__(self):
-        # format name_1--name_2
         self.binary_names = []
 
         self.a = []
@@ -1253,9 +1153,6 @@ class UNIQUAC_Yuan2020:
                       d=np.zeros(2), e=np.zeros(2))
 
     def get_binary_interaction_para(self, name_1, name_2):
-        """
-        names are strings
-        """
         for ind, name in enumerate(self.binary_names):
             if str(name_1 + "--" + name_2) == str(name):
                 return [self.a[ind], self.b[ind], self.c[ind], self.d[ind], self.e[ind]]
@@ -1267,7 +1164,6 @@ class UNIQUAC_Yuan2020:
         return None
 
     def combine_interactions(self, names):
-        # get q, q_tilde and r lists
         q_list = np.zeros(len(names))
         q_tilde_list = np.zeros(len(names))
         r_list = np.zeros(len(names))
@@ -1284,7 +1180,6 @@ class UNIQUAC_Yuan2020:
                 q_tilde_list[i] = paras[1]
                 r_list[i] = paras[2]
 
-        # get binary interactions
         a = np.zeros((len(names), len(names)))
         b = np.zeros((len(names), len(names)))
         c = np.zeros((len(names), len(names)))
@@ -1317,7 +1212,6 @@ class UNIQUAC_Yuan2020:
 
 class Experimental_Yuan2020:
     def __init__(self):
-        # each element is a list containing the names as strings
         self.names = []
         self.feeds = []
         self.corresponding_phases = []
@@ -1368,18 +1262,13 @@ class Experimental_Yuan2020:
                        "Table_4_1", "Table_4_2", "Table_4_3",
                        "Table_5_1", "Table_5_2", "Table_5_3",
                        "Table_10_1", "Table_10_2", "Table_10_3"]
-        excel_path = os.path.join(os.getcwd(), "data", "source_property_data", "yuan_2020", "to_read.xlsx")
+        excel_path = os.path.join(os.getcwd(), "source_property_data", "yuan_2020", "to_read.xlsx")
 
         for j in range(len(names)):
             data = pd.read_excel(excel_path, sheet_name=sheet_names[j], header=None, index_col=None)
             self.add_system(temp[j], names[j], molar_fractions_given, molar_masses[j], data)
 
     def add_system(self, temp, names, molar_fractions_given, molar_masses, data):
-        """
-        names is a list of strings
-
-        feeds are calculated as average of the corresponding phases
-        """
         matrix_to_read = data.to_numpy()
         num_comp = len(names)
         phase_1 = np.zeros((len(matrix_to_read), num_comp))
@@ -1390,7 +1279,6 @@ class Experimental_Yuan2020:
             phase_2[i] = matrix_to_read[i][num_comp:2 * num_comp]
 
         if not molar_fractions_given:
-            # convert to molar_fractions
             for i in range(len(phase_1)):
                 phase_1[i] = convert_mass_fr_to_molar_fr(phase_1[i], molar_masses)
                 phase_2[i] = convert_mass_fr_to_molar_fr(phase_2[i], molar_masses)
