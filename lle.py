@@ -8,7 +8,7 @@ import copy
 import ray
 
 
-class miscibility_gap_simplex:
+class MiscibilityGapSimplex:
     def __init__(self, points_coords_cart, points_mfr, points_ind, matrix, matrix_inv):
         """
         Class to store a simplex, which contains points which split into multiple liquid phases.
@@ -45,7 +45,7 @@ class miscibility_gap_simplex:
         return middle / len(self.points_molar_fractions)
 
 
-class miscibility_analysis:
+class MiscibilityAnalysis:
     def __init__(self, discretized_system, gE_model, temperature, construct, path, actors_for_para):
         """
         LLE analysis for an arbitrary number of components, generalization of the method described in
@@ -267,8 +267,8 @@ class miscibility_analysis:
 
         self.miscibility_gap_simplices = []
         for i in range(len(misc_gap_simpl_p_ind)):
-            misc_gap_simplex = miscibility_gap_simplex(misc_gap_simpl_p_coords_cart[i],
-                misc_gap_simpl_p_mfrs[i], misc_gap_simpl_p_ind[i], misc_gap_simpl_mat[i], misc_gap_simpl_mat_inv[i])
+            misc_gap_simplex = MiscibilityGapSimplex(misc_gap_simpl_p_coords_cart[i],
+                                                     misc_gap_simpl_p_mfrs[i], misc_gap_simpl_p_ind[i], misc_gap_simpl_mat[i], misc_gap_simpl_mat_inv[i])
             misc_gap_simplex.edge_classification = edge_classifications[i]
 
             phase_blocks = []
@@ -298,7 +298,7 @@ class miscibility_analysis:
         graph_points_real_indices = []
 
         for j, mfr in enumerate(molar_fractions_list):
-            d_g_mix = np.min([0, miscibility_analysis.compute_delta_g_mix(mfr, self.gE_model, self.temperature)])
+            d_g_mix = np.min([0, MiscibilityAnalysis.compute_delta_g_mix(mfr, self.gE_model, self.temperature)])
 
             # we only care for negative values and pure components
             if d_g_mix < -1 * epsilon or np.max(mfr) > 1 - epsilon:
@@ -323,12 +323,12 @@ class miscibility_analysis:
             vertices_cartesian = [self.discretized_system.points_cart[i] for i in real_point_indices]
             simplex_volume = self.discretized_system.volume_simplex(vertices_cartesian)
 
-            found_simplex = miscibility_analysis.check_simplex(self.num_comp, delta_g_s, vertices_mfr,
-                                                               vertices_cartesian,
-                                                               simplex_volume, expected_simplex_volume,
-                                                               self.discretized_system,
-                                                               expected_length, real_point_indices, self.gE_model,
-                                                               self.temperature)
+            found_simplex = MiscibilityAnalysis.check_simplex(self.num_comp, delta_g_s, vertices_mfr,
+                                                              vertices_cartesian,
+                                                              simplex_volume, expected_simplex_volume,
+                                                              self.discretized_system,
+                                                              expected_length, real_point_indices, self.gE_model,
+                                                              self.temperature)
 
             if found_simplex is not None:
                 num_phases = len(found_simplex.phase_blocks)
@@ -366,8 +366,8 @@ class miscibility_analysis:
                     # with the necessary information
                     if np.abs(np.max(distance_matrix) - expected_length) / expected_length > epsilon:
                         # store this simplex
-                        candidate_simplex = miscibility_gap_simplex(vertices_cartesian, vertices_mfr,
-                                                                    real_point_indices, matrix, matrx_inv)
+                        candidate_simplex = MiscibilityGapSimplex(vertices_cartesian, vertices_mfr,
+                                                                  real_point_indices, matrix, matrx_inv)
 
                         # we want to check if we can model the phase split in this simplex, for this, we have
                         # to determine for each edge if it is homo- or heterogeneous
@@ -472,8 +472,8 @@ class miscibility_analysis:
                         # the phase blocks are not isolated. Here we try to reduce them, which means
                         # we check, if some of the heterogeneous edges are homogeneous (similar as
                         # discussed in ryll2009)and if this leads to a legal misc gap simplex.
-                        reduced_simplex, stat_std = miscibility_analysis.reduce_misc_gap_simplex(candidate_simplex,
-                            gE_model, temperature, discretized_system)
+                        reduced_simplex, stat_std = MiscibilityAnalysis.reduce_misc_gap_simplex(candidate_simplex,
+                                                                                                gE_model, temperature, discretized_system)
 
                         # if no reduction is possible, add the candidate, if this does not harm the isolated
                         # phase condition
@@ -508,8 +508,8 @@ class miscibility_analysis:
             for j in range(i + 1, num_comp):
                 if simplex.edge_classification[i][j] == 1:
                     hetero_index_pairs.append([i, j])
-                    hetero_lengths.append(miscibility_analysis.distance_for_reduce(simplex.points_molar_fractions[i],
-                                                                                   simplex.points_molar_fractions[j]))
+                    hetero_lengths.append(MiscibilityAnalysis.distance_for_reduce(simplex.points_molar_fractions[i],
+                                                                                  simplex.points_molar_fractions[j]))
 
         candidate_indices = []
         # if there are edges, which are quite short, we will try to reduce them.
@@ -653,8 +653,8 @@ class miscibility_analysis:
         # get std for normal simplex, if we have isoactivity condition, don't change it
         std_border = 0.05
 
-        _, std = miscibility_analysis.act_mean_std_analysis(simplex, gE_model, temperature, num_comp,
-                                                            discretized_system, miscibility_gap_simplices=None)
+        _, std = MiscibilityAnalysis.act_mean_std_analysis(simplex, gE_model, temperature, num_comp,
+                                                           discretized_system, miscibility_gap_simplices=None)
         stat_to_ret = np.max(std)
 
         # we have to reduce if there was a short edge found before
@@ -669,8 +669,8 @@ class miscibility_analysis:
                 for i in range(num_comp):
                     for j in range(i + 1, num_comp):
                         if lis[-1].edge_classification[i][j] == 1:
-                            edge_len = miscibility_analysis.distance_for_reduce(lis[-1].points_molar_fractions[i],
-                                                                                lis[-1].points_molar_fractions[j])
+                            edge_len = MiscibilityAnalysis.distance_for_reduce(lis[-1].points_molar_fractions[i],
+                                                                               lis[-1].points_molar_fractions[j])
 
                             if edge_len < current_min:
                                 current_min = edge_len
@@ -707,7 +707,7 @@ class miscibility_analysis:
                             for jw in range(iw + 1, len(c[-1].edge_classification)):
                                 if c[-1].edge_classification[iw][jw] == 1:
                                     counter = counter + 1
-                                    averages[c_ind] = averages[c_ind] + miscibility_analysis.distance_for_reduce(
+                                    averages[c_ind] = averages[c_ind] + MiscibilityAnalysis.distance_for_reduce(
                                         c[-1].points_molar_fractions[iw], c[-1].points_molar_fractions[jw])
 
                         averages[c_ind] = averages[c_ind] / counter
@@ -729,14 +729,14 @@ class miscibility_analysis:
         """
         # get middle feed
         feed_middle = simplex.get_middle()
-        phases_flowrates, _ = miscibility_analysis.find_phase_split(feed_middle, simplex, discretized_system,
-                                                                    miscibility_gap_simplices, num_comp)
+        phases_flowrates, _ = MiscibilityAnalysis.find_phase_split(feed_middle, simplex, discretized_system,
+                                                                   miscibility_gap_simplices, num_comp)
 
         # conversion to molar fractions
         phases_mfr = [fr / sum(fr) for fr in phases_flowrates]
 
         # get activity coefficients and activities
-        act, act_x_mfr = miscibility_analysis.isoactivity(gE_model, temperature, phases_mfr)
+        act, act_x_mfr = MiscibilityAnalysis.isoactivity(gE_model, temperature, phases_mfr)
 
         border_to_be_present = 0.003
 
@@ -788,7 +788,7 @@ class miscibility_analysis:
             if relevant_simplex is None:
                 in_gap = False
                 for simplex_ind, simplex in enumerate(miscibility_gap_simplices):
-                    if miscibility_analysis.point_in_simplex_via_bary(simplex, feed_cartesian):
+                    if MiscibilityAnalysis.point_in_simplex_via_bary(simplex, feed_cartesian):
                         in_gap = True
                         relevant_simplex = miscibility_gap_simplices[simplex_ind]
                         break
@@ -818,8 +818,8 @@ class miscibility_analysis:
 
                 mfr_phases.append(discretized_system.transform_cartesian_to_molar_fr(phase_cart))
 
-            splits_flowrates = miscibility_analysis.get_split_flowrates(feed_molar_flowrates, mfr_phases,
-                                                                        split_ratios)
+            splits_flowrates = MiscibilityAnalysis.get_split_flowrates(feed_molar_flowrates, mfr_phases,
+                                                                       split_ratios)
 
             return splits_flowrates, relevant_simplex
 

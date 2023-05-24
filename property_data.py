@@ -10,7 +10,6 @@ import os
 import pandas as pd
 import importlib
 
-
 import thermo_models
 import analysis_class
 

@@ -43,8 +43,8 @@ class Analysis:
 
         if store_lle and not os.path.isdir(path):
             start_time = time.perf_counter()
-            lle_analysis = lle.miscibility_analysis(self.point_disc, self.ge_model, self.temperature,
-                                                    construct=store_lle, path=None, actors_for_para=actors_para)
+            lle_analysis = lle.MiscibilityAnalysis(self.point_disc, self.ge_model, self.temperature,
+                                                   construct=store_lle, path=None, actors_for_para=actors_para)
             construction_time = time.perf_counter() - start_time
             print("\ntime", construction_time)
 
@@ -66,8 +66,8 @@ class Analysis:
 
                 self.plotter_instance.save_plot(os.path.join(path, name + "_lle.png"))
 
-        self.loaded_lle = lle.miscibility_analysis(self.point_disc, self.ge_model, self.temperature,
-                                                   construct=False, path=path, actors_for_para=actors_para)
+        self.loaded_lle = lle.MiscibilityAnalysis(self.point_disc, self.ge_model, self.temperature,
+                                                  construct=False, path=path, actors_for_para=actors_para)
 
         if experimental_data is not None:
             index = None

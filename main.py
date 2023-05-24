@@ -22,8 +22,12 @@ if __name__ == "__main__":
             point_discretization.PointDisc(num_comp=todo_el[0], recursion_steps=todo_el[1],
                                            load=False, store=True)
 
-    # specify ray actors, if equal to 0, no parallelization
-    actors_parallelized = 2
+    # specify ray actors, if equal to 0, no parallelization, keys are number of components
+    actors_parallelized = {2: 0,
+                           3: 0,
+                           4: 4,
+                           5: 4,
+                           6: 4}
 
     results_path = os.path.join(os.getcwd(), "results", "lle_results")
     if not os.path.isdir(results_path):
@@ -44,7 +48,7 @@ if __name__ == "__main__":
     property_data.InitClass(names_list=names_list[0], store_lle=store_lle,
                             point_discretization_rec_steps=8,
                             name_for_data=general_name, temperature_kelvin=temperature_kelvin[0],
-                            deciding_index=deciding_index, actors_parallelized=actors_parallelized,
+                            deciding_index=deciding_index, actors_parallelized=actors_parallelized[len(names_list[0])],
                             ge_model_name=ge_model_name, tau_given=tau_given,
                             experimental_data_given=experimental_data_given)
 
@@ -52,7 +56,8 @@ if __name__ == "__main__":
         property_data.InitClass(names_list=names_list[i], store_lle=store_lle,
                                 point_discretization_rec_steps=7,
                                 name_for_data=general_name, temperature_kelvin=temperature_kelvin[i],
-                                deciding_index=deciding_index, actors_parallelized=actors_parallelized,
+                                deciding_index=deciding_index,
+                                actors_parallelized=actors_parallelized[len(names_list[i])],
                                 ge_model_name=ge_model_name, tau_given=tau_given,
                                 experimental_data_given=experimental_data_given)
 
@@ -69,7 +74,7 @@ if __name__ == "__main__":
     property_data.InitClass(names_list=names_list, store_lle=store_lle,
                             point_discretization_rec_steps=7,
                             name_for_data=general_name, temperature_kelvin=temperature_kelvin,
-                            deciding_index=deciding_index, actors_parallelized=actors_parallelized,
+                            deciding_index=deciding_index, actors_parallelized=actors_parallelized[len(names_list)],
                             ge_model_name=ge_model_name, tau_given=tau_given,
                             experimental_data_given=experimental_data_given)
 
@@ -89,7 +94,8 @@ if __name__ == "__main__":
         property_data.InitClass(names_list=names_list[j], store_lle=store_lle,
                                 point_discretization_rec_steps=7,
                                 name_for_data=general_name, temperature_kelvin=temperature_kelvin,
-                                deciding_index=deciding_index, actors_parallelized=actors_parallelized,
+                                deciding_index=deciding_index,
+                                actors_parallelized=actors_parallelized[len(names_list[j])],
                                 ge_model_name=ge_model_name, tau_given=tau_given,
                                 experimental_data_given=experimental_data_given)
 
@@ -102,7 +108,8 @@ if __name__ == "__main__":
         property_data.InitClass(names_list=names_list[j], store_lle=store_lle,
                                 point_discretization_rec_steps=6,
                                 name_for_data=general_name, temperature_kelvin=temperature_kelvin,
-                                deciding_index=deciding_index, actors_parallelized=actors_parallelized,
+                                deciding_index=deciding_index,
+                                actors_parallelized=actors_parallelized[len(names_list[j])],
                                 ge_model_name=ge_model_name, tau_given=tau_given,
                                 experimental_data_given=experimental_data_given)
 
@@ -111,7 +118,7 @@ if __name__ == "__main__":
     property_data.InitClass(names_list=names_list, store_lle=store_lle,
                             point_discretization_rec_steps=5,
                             name_for_data=general_name, temperature_kelvin=temperature_kelvin,
-                            deciding_index=deciding_index, actors_parallelized=actors_parallelized,
+                            deciding_index=deciding_index, actors_parallelized=actors_parallelized[len(names_list)],
                             ge_model_name=ge_model_name, tau_given=tau_given,
                             experimental_data_given=experimental_data_given)
 
@@ -133,7 +140,8 @@ if __name__ == "__main__":
         property_data.InitClass(names_list=names_list[j], store_lle=store_lle,
                                 point_discretization_rec_steps=6,
                                 name_for_data=general_name, temperature_kelvin=temperature_kelvin,
-                                deciding_index=deciding_index, actors_parallelized=actors_parallelized,
+                                deciding_index=deciding_index,
+                                actors_parallelized=actors_parallelized[len(names_list[j])],
                                 ge_model_name=ge_model_name, tau_given=tau_given,
                                 experimental_data_given=experimental_data_given)
 
@@ -145,7 +153,8 @@ if __name__ == "__main__":
         property_data.InitClass(names_list=names_list[j], store_lle=store_lle,
                                 point_discretization_rec_steps=5,
                                 name_for_data=general_name, temperature_kelvin=temperature_kelvin,
-                                deciding_index=deciding_index, actors_parallelized=actors_parallelized,
+                                deciding_index=deciding_index,
+                                actors_parallelized=actors_parallelized[len(names_list[j])],
                                 ge_model_name=ge_model_name, tau_given=tau_given,
                                 experimental_data_given=experimental_data_given)
 
@@ -180,7 +189,8 @@ if __name__ == "__main__":
         property_data.InitClass(names_list=names_list[j], store_lle=store_lle,
                                 point_discretization_rec_steps=6,
                                 name_for_data=general_name, temperature_kelvin=temperature_kelvin[j],
-                                deciding_index=deciding_index, actors_parallelized=actors_parallelized,
+                                deciding_index=deciding_index,
+                                actors_parallelized=actors_parallelized[len(names_list[j])],
                                 ge_model_name=ge_model_name, tau_given=tau_given,
                                 experimental_data_given=experimental_data_given)
 
@@ -195,7 +205,8 @@ if __name__ == "__main__":
         property_data.InitClass(names_list=names_list[j], store_lle=store_lle,
                                 point_discretization_rec_steps=4,
                                 name_for_data=general_name, temperature_kelvin=temperature_kelvin[j],
-                                deciding_index=deciding_index, actors_parallelized=actors_parallelized,
+                                deciding_index=deciding_index,
+                                actors_parallelized=actors_parallelized[len(names_list[j])],
                                 ge_model_name=ge_model_name, tau_given=tau_given,
                                 experimental_data_given=experimental_data_given)
 
@@ -220,7 +231,8 @@ if __name__ == "__main__":
         property_data.InitClass(names_list=names_list[j], store_lle=store_lle,
                                 point_discretization_rec_steps=6,
                                 name_for_data=general_name, temperature_kelvin=temperature_kelvin,
-                                deciding_index=deciding_index, actors_parallelized=actors_parallelized,
+                                deciding_index=deciding_index,
+                                actors_parallelized=actors_parallelized[len(names_list[j])],
                                 ge_model_name=ge_model_name, tau_given=tau_given,
                                 experimental_data_given=experimental_data_given)
 
@@ -232,7 +244,8 @@ if __name__ == "__main__":
     property_data.InitClass(names_list=names_list, store_lle=store_lle,
                             point_discretization_rec_steps=4,
                             name_for_data=general_name, temperature_kelvin=temperature_kelvin,
-                            deciding_index=deciding_index, actors_parallelized=actors_parallelized,
+                            deciding_index=deciding_index,
+                            actors_parallelized=actors_parallelized[len(names_list)],
                             ge_model_name=ge_model_name, tau_given=tau_given,
                             experimental_data_given=experimental_data_given)
 
@@ -269,7 +282,8 @@ if __name__ == "__main__":
         property_data.InitClass(names_list=names_list[j], store_lle=store_lle,
                                 point_discretization_rec_steps=6,
                                 name_for_data=general_name, temperature_kelvin=temperature_kelvin[j],
-                                deciding_index=deciding_index, actors_parallelized=actors_parallelized,
+                                deciding_index=deciding_index,
+                                actors_parallelized=actors_parallelized[len(names_list[j])],
                                 ge_model_name=ge_model_name, tau_given=tau_given,
                                 experimental_data_given=experimental_data_given)
 
@@ -286,6 +300,7 @@ if __name__ == "__main__":
         property_data.InitClass(names_list=names_list[j], store_lle=store_lle,
                                 point_discretization_rec_steps=4,
                                 name_for_data=general_name, temperature_kelvin=temperature_kelvin[j],
-                                deciding_index=deciding_index, actors_parallelized=actors_parallelized,
+                                deciding_index=deciding_index,
+                                actors_parallelized=actors_parallelized[len(names_list[j])],
                                 ge_model_name=ge_model_name, tau_given=tau_given,
                                 experimental_data_given=experimental_data_given)
