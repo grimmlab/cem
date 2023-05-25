@@ -125,7 +125,8 @@ class MiscibilityAnalysis:
         expected_simplex_volume = self.discretized_system.volume_simplex(
             self.discretized_system.vertices_outer_simplex) / (
                                           int(2 ** self.discretized_system.recursion_steps) ** (self.num_comp - 1))
-        separation = self.get_index_separation(len(self.convex_hull_simplices), self.actors_for_para)
+        separation = self.get_index_separation(len(self.convex_hull_simplices),
+                                               self.actors_for_para)
 
         print("\ncompare simplices parallel\n")
         para_res_ids = []

@@ -25,9 +25,9 @@ if __name__ == "__main__":
     # specify ray actors, if equal to 0, no parallelization, keys are number of components
     actors_parallelized = {2: 0,
                            3: 0,
-                           4: 4,
-                           5: 4,
-                           6: 4}
+                           4: 40,
+                           5: 40,
+                           6: 40}
 
     results_path = os.path.join(os.getcwd(), "results", "lle_results")
     if not os.path.isdir(results_path):
