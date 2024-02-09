@@ -32,15 +32,15 @@ As described in [1], parts of the CEM can be executed in parallel. For this purp
 To cite this work, use the following BibTex-entry:
 
 ```
-@misc{göttl2023convex,
-      title={Convex Envelope Method for determining liquid multi-phase equilibria in systems with arbitrary number of components}, 
-      author={Quirin Göttl and Jonathan Pirnay and Dominik G. Grimm and Jakob Burger},
-      year={2023},
-      eprint={2304.12025},
-      archivePrefix={arXiv},
-      primaryClass={physics.chem-ph}
+@article{gottl2023convex,
+  title={Convex Envelope Method for determining liquid multi-phase equilibria in systems with arbitrary number of components},
+  author={G{\"o}ttl, Quirin and Pirnay, Jonathan and Grimm, Dominik G and Burger, Jakob},
+  journal={Computers \& Chemical Engineering},
+  pages={108321},
+  year={2023},
+  publisher={Elsevier}
 }
 ```
 
 ## References
-[1] Quirin Göttl, Jonathan Pirnay, Dominik G. Grimm, Jakob Burger, 2023. Convex Envelope Method for determining liquid multi-phase equilibria in systems with an arbitrary number of components. Preprint (currently under review): https://arxiv.org/abs/2304.12025.
+[1] Göttl, Q., Pirnay, J., Grimm, D. G., & Burger, J. (2023). Convex Envelope Method for determining liquid multi-phase equilibria in systems with arbitrary number of components. Computers & Chemical Engineering, 108321. [https://doi.org/10.1016/j.compchemeng.2023.108321](https://doi.org/10.1016/j.compchemeng.2023.108321)
